@@ -1,0 +1,12 @@
+City: Seoul
+Temperature: 33.16°C (Feels like: 40.16°C)
+Description: broken clouds
+Humidity: 62%
+Wind speed: 3.58 m/s
+------------------------------
+City: Bengaluru
+Temperature: 25.59°C (Feels like: 25.82°C)
+Description: overcast clouds
+Humidity: 62%
+Wind speed: 9.5 m/s
+------------------------------
