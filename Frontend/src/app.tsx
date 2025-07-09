@@ -25,23 +25,42 @@ function App() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!city.trim()) return;
+  e.preventDefault();
+  if (!city.trim()) return;
 
-    setIsLoading(true);
-    setHasSearched(true);
+  setIsLoading(true);
+  setHasSearched(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setWeatherData({
-        ...mockWeatherData,
-        city: city.trim(),
-        temperature: Math.floor(Math.random() * 30) + 10,
-        humidity: Math.floor(Math.random() * 40) + 40,
-      });
-      setIsLoading(false);
-    }, 1000);
-  };
+  try {
+    const response = await fetch("http://127.0.0.1:5000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ city: city.trim() }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to fetch weather data');
+    }
+
+    setWeatherData({
+      city: data.city,
+      temperature: Math.round(data.temperature),
+      description: data.description,
+      humidity: data.humidity,
+      weatherType: data.weather_type,
+    });
+  } catch (error) {
+    console.error('Error fetching weather: ', error);
+    setWeatherData(null);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const getWeatherIcon = (type: string) => {
     switch (type.toLowerCase()) {
