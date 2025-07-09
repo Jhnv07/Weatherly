@@ -1,4 +1,5 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, jsonify
+from flask_cors import CORS
 import requests
 from dotenv import load_dotenv
 import os
@@ -7,6 +8,7 @@ load_dotenv()
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 app = Flask(__name__)
+CORS(app)
 
 HTML_TEMPLATE = """
 <!doctype html>
@@ -35,7 +37,13 @@ def index():
     weather = None
     error = None
     if request.method == "POST":
-        city = request.form.get("city")
+        if request.is_json:
+            city = request.get_json().get("city")
+            json_mode = True
+        else:
+            city = request.form.get("city")
+            json_mode = False   
+
         url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
         try:
             response = requests.get(url, timeout=5)
@@ -49,6 +57,10 @@ def index():
                 "humidity": data["main"]["humidity"],
                 "wind_speed": data["wind"]["speed"]
             }
+
+            if json_mode:
+                return jsonify(weather)
+            
         except requests.exceptions.HTTPError:
             if response.status_code == 404:
                 error = "City not found. Please check the name and try again."
