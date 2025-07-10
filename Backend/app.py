@@ -10,6 +10,7 @@ API_KEY = os.getenv("OPENWEATHER_API_KEY")
 app = Flask(__name__)
 CORS(app)
 
+
 HTML_TEMPLATE = """
 <!doctype html>
 <title>Weather Dashboard</title>
