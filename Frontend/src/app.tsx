@@ -16,50 +16,54 @@ function App() {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Mock weather data for demonstration
-  const mockWeatherData: WeatherData = {
-    city: 'London',
-    temperature: 22,
-    description: 'Partly Cloudy',
-    humidity: 65,
-    weatherType: 'cloudy'
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!city.trim()) return;
+    e.preventDefault();
+    if (!city.trim()) return;
 
-  setIsLoading(true);
-  setHasSearched(true);
+    setIsLoading(true);
+    setHasSearched(true);
 
-  try {
-    const response = await fetch("http://127.0.0.1:5000/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ city: city.trim() }),
-    });
+    // setTimeout(() => {
+    //   setWeatherData({
+    //     city: city.trim(),
+    //     temperature: Math.floor(Math.random() * 30) + 10,
+    //     humidity: Math.floor(Math.random() * 40) + 40,
+    //     description: "Clear sky",
+    //     weatherType: "Clear",
+    //   });
+    //   setIsLoading(false);
+    // }, 1000);
 
-    const data = await response.json();
+    try {
+      const response = await fetch("/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ city: city.trim() }),
+      });
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to fetch weather data');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch weather data');
+      }
+
+      setWeatherData({
+        city: data.city,
+        temperature: Math.round(data.temperature),
+        description: data.description,
+        humidity: data.humidity,
+        weatherType: data.weather_type,
+      });
+    } catch (error) {
+      console.error('Error fetching weather: ', error);
+      setWeatherData(null);
+    } finally {
+      setIsLoading(false);
     }
-
-    setWeatherData({
-      city: data.city,
-      temperature: Math.round(data.temperature),
-      description: data.description,
-      humidity: data.humidity,
-      weatherType: data.weather_type,
-    });
-  } catch (error) {
-    console.error('Error fetching weather: ', error);
-    setWeatherData(null);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
   const getWeatherIcon = (type: string) => {
@@ -101,8 +105,8 @@ function App() {
         </header>
 
         {/* Search Form */}
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className="mb-12 animate-slide-up"
           id="weather-search-form"
         >
@@ -155,7 +159,7 @@ function App() {
                         {weatherData.city}
                       </h2>
                     </div>
-                    
+
                     <div className="flex items-center justify-center md:justify-start gap-4 mb-6">
                       <div className="animate-pulse-slow" id="weather-icon">
                         {getWeatherIcon(weatherData.weatherType)}
@@ -186,7 +190,7 @@ function App() {
                           {weatherData.humidity}%
                         </span>
                         <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
+                          <div
                             className="bg-weather-primary h-2 rounded-full transition-all duration-500"
                             style={{ width: `${weatherData.humidity}%` }}
                           ></div>
